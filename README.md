@@ -7,7 +7,7 @@ zad1 - minimize HappyCat and Griewank functions
 zad2 - travelling salesman problem  
 zad3 - minimizing the length of the road throught a grid  
 
-## **List 2 **
+## **List 2**
 
 **Simulated annealing**  
 zad1 - minimize Salomon function  
