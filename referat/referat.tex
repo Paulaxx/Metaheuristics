@@ -1,0 +1,208 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{float}
+\graphicspath{ {Pliki/} }
+
+\usepackage[polish]{babel}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{biblatex}
+
+\title{Problem przydziału dla algorytmów genetycznych}
+\author{Paulina Gryszczyk 250337}
+
+\begin{document}
+\maketitle
+\newpage
+
+
+\section{Algorytmy genetyczne}
+W przypadku metaheurystyk takich jak: symulowane wyżarzanie, przeszukiwanie z tabu, czy przeszukiwanie lokalne operuje się na jednym rozwiązaniu, które chcemy, aby było jak najlepsze. W algorytmach genetycznych przyjmuje się inną taktykę. Tworzona jest tzw. „populacja”, o wybranym rozmiarze i przy każdej iteracji modyfikuje się ją tak, aby do następnego pokolenia przechodziły najlepsze osobniki. W ten sposób każde następne pokolenie posiada coraz to lepsze cechy, co pozwala na wybranie najlepszego osobnika z końcowej populacji. Modyfikacja populacji następuje poprzez krzyżowanie oraz mutację. Krzyżowanie polega na wyborze dwóch rodziców i ich paru genów, a następnie złączeniu ich. Nowo powstały chromosom nazywany jest dzieckiem dwóch krzyżowanych osobników, i dodawany do populacji. Do mutacji wybierany jest tylko jeden osobnik i dokonywane są pewne zmiany jego genotypu. Może to być zmiana jednego genu lub paru z nich. Do krzyżowania i mutacji wybierana jest określona liczba osobników, a wyniki tych operacji dodawane są do populacji początkowej danej iteracji. Następnie funkcja celu wybiera tyle najlepszych osobników ile wynosi rozmiar populacji. W niektórych przypadkach dla zachowania różnorodności genetycznej można też zachować w populacji osobniki o małej wartości funkcji celu lub osobniki niedopuszczalne, niedozwolone w zadaniu.
+
+\section{Problem przydziału}
+Problem przydziału został zdefiniowany, aby zwiększyć efektywność pracy oraz zminimalizować koszty i marnowany czas lub zasoby.
+Jednym z bardziej znanych jest „Job-shop Scheduling Problem”(JSP). Polega on na tym, że jest do wykonania dana ilość zadań, składających się z określonej ilości operacji. Każda operacja musi zostać wykonana na jednej maszynie. Maszyny mogą wykonywać tylko jedną operację w tym samym czasie. Każdej maszynie są też przypisane operacje, które muszą zostać na niej wykonane. Załóżmy, że każdą operacje można opisać listą krotek (m, t), gdzie m to numer maszyny, a t czas potrzebny na wykonanie danej operacji na tej maszynie. Wtedy przykładowe dane wejściowe do zadania wyglądałyby tak:
+job0=[(0,3),(1,2),(2,2)], job1=[(0,2),(2,1),(1,4)], job2=[(1,4),(2,3)].
+
+\section{Źródło 1}
+Pierwszym omówionym tekstem będzie ,,A genetic algorithm for the Flexible Job-shop Scheduling Problem''.
+Autorzy zamieszczonych tam badań F.Pezella, G.Morganti, G.Ciaschetti stworzyli algorytm rozwiązujący ,,Flexible Job-shop Scheduling Problem''. FJSP jest trudniejszą wersją opisanego wyżej JSP, w którym każda operacja miała przypisaną maszynę, na której powinna zostać wykonana. W tym przypadku algorytm musi również dopasowywać maszyny do operacji. Algorytm opisany w tym tekście jest algorytmem genetycznym.
+
+ \subsection{Dane wejściowe}
+ Jako dane wejściowe do algorytmu należy podać zbiór zadań, z których każde składa się z określonej liczby operacji O. Operacje danego zadania muszą być wykonywane w takiej kolejności, w jakiej zostaną podane. Dodatkowo należy jeszcze podać zbiór maszyn M. W poniższej tabeli przedstawione zostały przykładowe podziały zadań na operacje $O_{ij}$, gdzie i to numer zadania, a j to numer operacji danego zadania. W środku tabeli na przecięciu się konkretnej operacji z maszyną znajduje się czas wykonania tej operacji na danej maszynie.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{4.png}
+ \caption{Tabela z przykładowymi danymi wejściowymi}
+ \end{figure}
+
+ \subsection{Cel}
+ Celem zadania jest dopasować każdą operację do właściwej maszyny oraz ułożyć w czasie wykonanie się zadań przypisanych do każdej maszyny, tak aby zminimalizować czas wykonywania się zadań tzw. ,,makespan'' oraz aby operacje danego zadania były wykonywane po kolei.
+
+ \subsection{Parametry algorytmu}
+ \begin{enumerate}
+ \item Kodowanie\\
+ Sposób reprezentacji rozwiązań to tabela składająca się z krotek (i, j, k). I odnosi się do numeru zadania, j do numeru operacji, a k maszyny. Przykładowa tabela mogłaby wyglądać w następujący sposób:
+ [(1,1,3),(1,2,1),(2,1,3),(2,2,4),
+ (3,1,3),(1,3,2),(3,2,1),(2,3,4)].
+ Jest to sposób reprezentacji poniższego rozwiązania.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{5.png}
+ \caption{diagram Gantta}
+ \end{figure}
+
+ \item Populacja początkowa\\
+ Wyznaczanie populacji od której zaczyna się działanie algorytmu polegało na początku na znalezieniu dla każdej operacji maszyny z najmniejszym czasem pracy i dodaniu do reszty operacji przypisanych do tej maszyny, tego najmniejszego czasu. Na poniższym obrazku w kwadracie znajduje się wybrany obiekt, natomiast koszty operacji, które powinny zostać zwiększone zostały pogrubione.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{6.png}
+ \caption{diagram Gantta}
+ \end{figure}
+ Jednak sposób ten był bardzo uzależniony od kolejności w jakiej operacje i maszyny zostały wpisane do tabeli dlatego twórcy zmodyfikowali jeszcze ten sposób. Zmienili sposób wyboru najmniejszego czasu, na taki aby znajdować globalne minimum(w całej tabeli), a nie dla danej operacji. Drugą zmianą było to iż wprowadzili losową permutację zadań i maszyn w tabeli. Dzięki drugiej zmianie przestrzeń poszukiwań była lepiej eksplorowana. Połączenie tych dwóch sposobów zostało wykorzystane do zmieniania przydziału operacji do maszyn. Do zmiany sekwencjonowania zostały wykorzystane 3 inne metody: losowego wyboru zadania, MWR wstawiająca do harmonogramu jako pierwsze operacje, które pochodzą od zadania, któremu zostało jeszcze do wykonania najwięcej pracy, oraz MOR, który wybiera najpierw operacje, które pochodzą od zadania, któremu została do wykonania największa ilość operacji.
+
+
+ \item Funkcja celu\\
+ Do oceniania chromosomu została użyta funkcja zwracająca makespan, czyli całkowity czas wykonywania się operacji, w konfiguracji danego osobnika.
+
+ \item Selekcja\\
+ Wybór osobników do reprodukcji następował na 3 sposoby. Pierwszym z nich był ,,binary tournament'', polegający na wyborze 2 losowych osobników z populacji, a następnie przekazaniu dalej do reprodukcji tego z lepszą funkcją przystosowania. ,,n-size tournament'' to druga z metod, w której chromosom do reprodukcji jest wybierany spośród n losowych. Ostatnia metoda to ,,linear ranking''. Aby jej użyć należało najpierw posortować wszystkie osobniki według funkcji celu, przydzielić każdemu rangę od 1 do n(rozmiaru populacji). Najlepsze osobniki dostają rangę n, a te najsłabsze 1. Na końcu obliczane jest prawdopodobieństwo wyboru danego osobnika według wzoru:
+ \begin{equation}
+ p_{i} = \frac{2r_{i}}{n(n+1)}, i=1, ..., n.
+ \end{equation}
+ gdzie $r_{i}$ to ranga danego ocenianego osobnika, a n to rozmiar populacji.
+ Poprzez te 3 metody tworzony jest zbiór potencjalnych rodziców, z których w sposób losowy wybierane są osobniki do tworzenia następnego pokolenia.
+
+ \item Generowanie potomstwa\\
+ Tworzenie nowych osobników następuje poprzez krzyżowanie oraz mutację. Każda z tych dwóch operacji została jeszcze podzielona na 2 kategorie: zmieniająca przydział operacji do maszyn, ale zachowująca sekwencję zdarzeń, i zmieniająca kolejność zadań. Krzyżowanie zmieniające przydział polegało na zamianie fragmentów przydziału pomiędzy rodzicami. Natomiast mutacja w tej kategorii zmieniała kawałek przydziału pojedyńczemu rodzicowi. Podczas zmiany sekwencjonowania zmieniana jest kolejność zadań, lecz tak aby zachować kolejność wykonywania się operacji tego samego zadania. Autorzy algorytmu przedstawili też 2 nowe sposoby krzyżowania i mutacji: Precedence Preserving Order-based crossover(POX) oraz Precedence Preserving Shift mutation(PPS). POX polega na wybraniu u pierwszego rodzica losowej operacji, skopiowaniu do 1 dziecka wszystkich operacji z zadania, do którego należała wybrana na początku operacja. Reszta zadań jest uzupełniana w takiej kolejności i takimi wartościami jak u drugiego rodzica. Analogicznie tworzone jest drugie dziecko, zaczynając od drugiego rodzica. Natomiast PPS polega na wybraniu operacji od rodzica i przesunięciu jej na inną pozycję. Oczywiście podczas tego należy uważać, aby nie naruszyć kolejności wykonywania się operacji danego zadania. Została też wprowadzona tzw. inteligentna mutacja, polegająca na wyborze operacji z maszyny obciążonej największą ilością pracy, i przypisaniu tej wybranej operacji do maszyny o najmniejszym obciążeniu.
+ \end{enumerate}
+
+ \subsection{Wyniki}
+ Algorytm był testowany dla różnych wielkości parametrów, a najlepsze wyniki zostały osiągnięte dla populacji wielkości 5000, 1000 generacji, przypisania w populacji początkowej tworzonego w 10\% metodą globalnego minimum, a w 90\% metodą losowej permutacji. Sekwencje populacji początkowej najlepiej wyznaczać w 20\% w sposób losowy, w 40\% metodą MWR oraz też w 40\% metodą MOR. Jeśli chodzi o wyznaczanie potomstwa, to najlepsze wyniki zostały osiągnięte przy następującym podziale: 45\% POX, 45\% krzyżowanie przydziałów, 2\% PPS, 2\% mutacja przydziału oraz 6\% inteligentna mutacja przydziału. Poniższa tabela obrazuje porównanie wyników algorytmu przedstawionego w tekście do 3 innych znanych algorytmów rozwiązujących ten sam problem.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{7.png}
+ \caption{Porównanie wyników}
+ \end{figure}
+ Kolumna n zawiera liczbę prac, M numer maszyn, LB najlepszą dolną granice, a GA to najlepszy ,,makespan'' jaki udało się osiągnąć po 5 uruchomieniach. Kolumny
+ Chen, Genace oraz Jia zawierają najlepsze wyniki 3 różnych algorytmów do porównania. Po każdej z tych kolumn znajduje się kolumna nazwana ,,dev'', która zawiera informacje o odchyleniu w porównaniu do algorytmu omówionego w tekście. Odchylenie zostało wyliczone według wzoru:
+ \begin{equation}
+ dev = [(MK_{comp}-MK_{GA})/MK_{comp}] \cdot 100\% .
+ \end{equation}
+ gdzie $MK_{GA}$ to makespan omawianego algorytmu, a $MK_{comp}$ to makespan drugiego algorytmu, do którego porównujemy.
+ Na ostatnim załączonym wykresie możemy zauważyć, że średni makespan poprawia się bardzo szybko, a najlepszy makespan osiąga optymalną wartość 609 po 35 iteracjach.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{8.png}
+ \caption{Spadek najlepszego i średniego makespan'u}
+ \end{figure}
+
+\section{Źródło 2}
+Drugim analizowanym algorytmem będzie ,,Genetic Algorithms For Flowshop Scheduling Problems'', którego autorami są Tadahiko Murata, Hisao Ishibuchi oraz Hideo Tanaka. W tym tekście autorzy rozważają problem, w którym mamy określoną ilość zadań i każde z nich składa się z m etapów, gdzie m to liczba maszyn. Każdy etap musi zostać wykonany na innej maszynie, dodatkowo kolejność wykonywania się tych etapów jest taka sama dla każdej maszyny. Celem zadania jest ustalić taką kolejność zadań, aby czas wykonywania się ich wszystkich był jak najkrótszy.
+\subsection{Parametry algorytmu}
+ \begin{enumerate}
+ \item Kodowanie\\
+ Do zapisu rozwiązań autorzy algorytmu użyli stringów, które przechowywały dane o tym, w jakiej kolejności powinny być wykonywane zadania. Na przykład string ,,ABCDEF'' mówi nam o tym, że najpierw wykona się zadanie A, następnie B, C, D, E i na końcu F.
+
+ \item Selekcja\\
+ W każdej iteracji jest wybieranych $N_{pop}$ rodziców do reprodukcji, gdzie $N_{pop}$ to rozmiar populacji. Rodzice ci są wybierani na podstawie następującej funkcji prawdopodobieństwa:
+ \begin{equation}
+ P_{s}(x_{t}^{i}) = \frac {[f_{M}(\Psi_{t}) - f(x_{t}^{i})]^{2}}{ \sum_{x_{t}^{j} \in \Psi_{t}}  [f_{M}(\Psi_{t}) - f(x_{t}^{j})]^{2} }
+ \end{equation}
+ $f(x_{t}^{i})$ to funkcja celu od danego rozwiązania (makespan), a $f_{M}(\Psi_{t})$ to największy makespan w całej generacji.
+
+ \item Krzyżowanie\\
+ \newcommand{\RomanNumeralCaps}[1]
+    {\MakeUppercase{\romannumeral #1}}
+ Każde z 4 sposobów krzyżowania, omówionych tutaj uważają na to aby powstające nowe osobniki były rozwiązaniami dopuszczalnymi, czyli zawierały wszystkie zadania dokładnie raz. Pierwszym sposobem jest ,,jedno-punktowe krzyżowanie'', które polega na losowym wyborze jednego punktu u 1 rodzica, a następnie na przepisaniu do dziecka wszystkiego co jest po lewej stronie u 1 rodzica od wylosowanego punktu, a reszta pozycji jest przepisywana od 2 rodzica. ,,dwu-punktowe krzyżowanie'' działa podobnie do jedno-punktowego, z tą różnicą, że w dwu-punktowym losujemy 2 punkty i na ich podstawie wyznaczamy od którego rodzica kopiujemy, który fragment. Jest też \RomanNumeralCaps{2} wersja dwu-punktowego krzyżowania, która różni się od \RomanNumeralCaps{1} wersji kierunkiem przepisywania od rodziców. Ostatnie krzyżowanie to ,,krzyżowanie oparte na pozycjach'', polegające na wybraniu losowej ilości losowych genów u 1 rodzica, przepisaniu ich do tworzonego dziecka, a następnie uzupełnienie reszty genów genami 2 rodzica, których nowo tworzony osobnik jeszcze nie ma. Poniżej przedstawione są schematy tych 4 operatorów krzyżowania.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{9.png}
+ \caption{Sposoby krzyżowania}
+ \end{figure}
+
+ \item Mutacja\\
+ Celem mutacji była zamiana kolejności zadań w każdym stringu utworzonym w procesie krzyżowania. Do mutacji również zostały utworzone 4 sposoby, które polegały na zamianie 2 sąsiadujących ze sobą zadań, 2 lub 3 losowych zadań lub usunięcie jednego zadania i dodanie go na nowe, losowe miejsce. Do mutacji również zostały zamieszczone schematy działania.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{10.png}
+ \caption{Sposoby mutacji}
+ \end{figure}
+ \end{enumerate}
+
+\subsection{Zarys algorytmu}
+ Na samym początku jest tworzona populacja początkowa z losowych permutacji wszystkich zadań. Następnie wybieranych jest $N_{pop}$ (rozmiar populacji) par stringów, według funkcji prawdopodobieństwa. Do każdej z par jest zastosowana jedna z metod krzyżowania, lub jeśli nie, to jeden ze stringów z pary jest dodawany do następnego pokolenia w niezmienionym stanie. Po krzyżowaniu, każda z par jest poddawana również jednemu ze sposobów mutacji, a pod koniec usuwany jest jeden losowy osobnik z nowo utworzonej populacji, i  jest zastępowany najlepszym stringiem z poprzedniej populacji. Algorytm kończy się w momencie, w którym zostanie spełniony warunek stopu.
+
+\subsection{Porównanie wyników dla różnych parametrów}
+ W celu znalezienia parametrów dających najlepsze wyniki, autorzy uruchamiali testy dla różnych kombinacji tych parametrów. Sprawdzali również wpływ sposobów krzyżowania i mutacji na osiągane wyniki. Po przeprowadzeniu 100 testów z 20 zadaniami i 10 maszynami, doszli do wniosków, iż najlepiej jest ustawić wielkość populacji na 10, prawdopodobieństwo krzyżowania i mutacji na 1.0, przeprowadzać ,,dwu-punktowe krzyżowanie'' oraz mutację polegającą na zamianie miejsca losowemu zadaniu. Poniższy tabela przedstawia porównanie wyników dla różnych sposobów krzyżowania.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{11.png}
+ \caption{Porównanie operacji krzyżowania}
+ \end{figure}
+ Możemy zauważyć, że najlepiej sprawdza się krzyżowanie dwu-punktowe. Dlatego właśnie autorzy algorytmu zdecydowali się na zastosowanie go. W drugiej tabeli znajdują się wyniki porównania już tylko 4 sposobów krzyżowania, na tych samych testach co w tabeli powyżej uruchamianych po 10 razy. Po połączeniu wyników z obydwu tabel, nadal krzyżowanie dwu-punktowe pozostaje najlepszym wyborem.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{12.png}
+ \caption{Porównanie 4 sposobów krzyżowania}
+ \end{figure}
+ Testy przeprowadzane w celu ustalenia najlepszego sposobu mutacji, wykazały że sposób nazwany ,,Shift change'' zapewnia najlepsze rezultaty. Pokazuje to poniższy wykres, na którym sposób ten nazwano ,,SHIFT'' i przy jego użyciu osiągnięto najkrótszy całkowity czas wykonywania się zadań.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{13.png}
+ \caption{Porównanie 4 sposobów mutacji}
+ \end{figure}
+
+\subsection{Porównanie z innymi algorytmami}
+ Opisywany algorytm genetyczny został porównany do algorytmów opartych na innych podejściach heurystycznych, takich jak: przeszukiwanie lokalne, przeszukiwanie z tabu oraz symulowane wyżarzanie. Na poniższym wykresie znajdują się wyniki porównania osiąganych najkrótszych czasów, dla każdego z tych algorytmów.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.7]{14.png}
+ \caption{Porównanie 4 podejść heurystycznych}
+ \end{figure}
+ Na powyższym Rysunku 11 jako GA został oznaczony algorytm genetyczny, LS - przeszukiwanie lokalne, TS - przeszukiwanie z tabu, a SA - symulowane wyżarzanie.
+ Aby polepszyć początkowy algorytm genetyczny autorzy połączyli go z innymi podejściami, tworząc tzw. algorytmy hybrydowe. Dwa z nich zostaną omówione w następnych podrozdziałach.
+
+\subsection{Algorytm oparty na przeszukiwaniu lokalnym i podejściu ewolucyjnym}
+ Jednym z większych problemów podczas uruchamiania tego algorytmu był bardzo długi czas przeszukiwania lokalnego, co prowadziło do małej ilości utworzonych generacji. Dlatego autorzy zmodyfikowali algorytm tak aby nie sprawdzać wszystkich sąsiadów, ale tylko ich część np. 10\%. Po tej zmianie algorytm składa się z następujących kroków: utworzenie populacji początkowej, przeszukiwanie lokalne dla aktualnej generacji (ale tylko w ustalonej liczbie procentów), wybór osobników do reprodukcji, krzyżowanie, mutacja i jeżeli nie został spełniony warunek stopu to powrót do przeszukiwania lokalnego.
+
+\subsection{Algorytm oparty na symulowanym wyżarzaniu i podejściu ewolucyjnym}
+ Kroki tego algorytmu są takie same jak algorytmu opartego na przeszukiwaniu lokalnym, z tą różnicą, że tutaj jako 2 krok uruchamiane jest symulowane wyżarzanie. Autorzy postanowili ustawić stałą temperaturę dla każdego rozwiązania z aktualnej populacji. Aby ulepszyć algorytm podczas symulowanego wyżarzania wybieranych jest losowych k sąsiadów aktualnego rozwiązania, a najlepszy z nich jest ustawiany jako rozwiązanie w następnej iteracji algorytmu.
+
+\subsection{Podsumowanie algorytmów hybrydowych}
+ Obydwa wyżej opisane algortmy hybrydowe były sprawdzane na 100 różnych testach, składających się z 20 zadań i 10 maszyn. Poniższa tabela zawiera wyniki tych testów, dla różnych $\alpha$ - ile procent sąsiadów jest sprawdzanych w procedurze przeszukiwania lokalnego, oraz dla różnych k - ilu losowych sąsiadów jest wybieranych z sąsiedztwa aktualnego rozwiązania podczas symulowanego wyżarzania.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{15.png}
+ \caption{Wyniki algorytmów hybrydowych z różnymi parametrami}
+ \end{figure}
+ Jak możemy zauważyć GLS(Genetic local search) najlepiej się sprawdza dla $\alpha$ ustawionego na 75\%, a przy GSA(Genetic simulated annealing) najlepiej jest ustawić k na 6. Jeśli porównamy wyniki zwykłego algorytmu genetycznego do wcześniejszych dwóch hybrydowych to poprawa wyników będzie zauważalna, co potwierdza dodatkowo poniższy wykres.
+ \begin{figure}[H]
+ \centering
+ \includegraphics[scale=0.8]{16.png}
+ \caption{Porównanie algorytmu genetycznego do hybrydowych}
+ \end{figure}
+
+\section{Główne problemy 1 algorytmu}
+ Podczas rozwiązywania FJSP jednym z problemów był fakt, iż nie był to zwykły JSP i trzeba było dodatkowo ustalać przydział operacji do maszyn. Drugim napotkanym problemem był sposób wyznaczania populacji początkowej. Okazało się, że sposób wybrany przez twórców algorytmu na samym początku był za bardzo uzależniony od kolejności wpisywania operacji i maszyn, dlatego musiał on zostać zmieniony. Aby pozbyć się tej zależności, zastosowano tzw. globalne minimum, które w żaden sposób nie było zależne od wpisywania. Do generowania potomstwa zostało utworzonych bardzo wiele sposobów, co stworzyło kolejny problem z ustaleniem, które z nich wykorzystać oraz jaka część nowych osobników będzie tworzona poprzez, który z nich. Aby to ustalić trzeba było przeprowadzić wiele testów, na podstawie których ustalono najlepsze proporcje.
+
+\section{Główne problemy 2 algorytmu}
+ W tym algorytmie autorzy zdecydowali się na zastosowanie tylko jednego sposobu krzyżowania i jednego sposobu mutacji w docelowym algorytmie rozwiązującym zadany problem. Dlatego spośród 10 sposobów krzyżowania, oraz 4 mutacji trzeba było wybrać po jednym najlepszym. W tym celu przeprowadzili testy, które pokazały, które sposoby najlepiej zastosować. Aby osiągnąć jeszcze lepsze wyniki, początkowy algorytm genetyczny został połączony z innymi podejściami heurystycznymi. Podczas implementacji ,,local search'a'' okazało się, że czas wykonywania się go przy każdej iteracji jest tak duży, że zmniejsza w znacznym stopniu ilość generacji. Dlatego przeszukiwanie lokalne zostało zmienione w taki sposób aby znajdować tylko 10\% sąsiadów. Przy drugim podejściu wstrzykniętym do algorytmu - symulowanym wyżarzaniu, także zostały wprowadzone modyfikacje. K sąsiadów aktualnego rozwiązania było wybieranych losowo, a następnie najlepszy z nich zostawał kandydatem na rozwiązanie w następnej iteracji algorytmu. Po testach, k zostało ustawione na 6.
+
+ \section{Podsumowanie}
+ Każdy z omówionych algorytmów rozważał inną modyfikację problemu przydziału, dlatego też przy każdym z nich pojawiły się różne problemy i zostały wprowadzone różne parametry. Autorzy każdego z nich przeprowadzili wiele testów, tak aby dobrać jak najlepsze parametry, lub jak w przypadku 2 omawianego algorytmu, aby połączyć 2 różne podejścia heurystyczne. Wnioski wyciągnięte, z każdego z tych testów, zostały wykorzystane podczas implementacji końcowych algorytmów, które następnie były porównywane z innymi sposobami rozwiązania tego samego problemu. W przypadku FJSP okazało się, że przedstawiony algorytm daje lepsze wyniki, niż 3 inne znane algorytmy genetyczne. Aby osiągnąć zadowalające wyniki podczas rozwiązywania 2 problemu - FSP, trzeba było połączyć 2 różne podejścia. Poskutkowało to znaczącą poprawą wyników w porównaniu do algorytmu początkowego.
+
+\begin{thebibliography}{9}
+\bibitem{1}
+F. Pezzellaa, G. Morgantia, G. Ciaschettib.
+A genetic algorithm for the Flexible Job-shop Scheduling Problem, 2008
+\bibitem{2}
+Tadahiko Murata, Hisao Ishibuchi and Hideo Tanaka.
+Genetic Algorithms for Flowshop Scheduling Problems, 1996
+\bibitem{3}
+Zbigniew Michalewicz, David B. Fogel.
+Jak to rozwiązać czyli nowoczesna heurystyka, 2006
+\end{thebibliography}
+
+\end{document} 
