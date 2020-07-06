@@ -137,7 +137,6 @@ int main() {
                     if(road_length < best_road_length){
                         best_road_length = road_length;
                         best_road = current_road;
-                        cerr<<best_road.size();
                     }
                     i = max_road_length*2;
                     break;
