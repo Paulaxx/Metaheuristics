@@ -21,3 +21,6 @@ zad1 - minimize X.S.Yang function
 zad2 - finding words for the most points  
 zad3 - minimizing the length of the road throught a grid  
 
+## **Report**
+A genetic algorithms for the Scheduling Problem
+
